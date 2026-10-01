@@ -1,0 +1,628 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   设计令牌 · 「药房处方笺」有机风（Organic 锚点）
+   沙纸底 + 药匣墨绿主色 + 朱红唯一强调色（仅警示）
+   ============================================================ */
+:root {
+  /* 色彩（有机风锚点：沙纸大地色系，不用奶油禁域 #F0–F8） */
+  --color-paper: #e7dbbf; /* 页面底色：沙纸 */
+  --color-surface: #eee4c9; /* 卡片：亮半档的沙色 */
+  --color-ink: #26221a; /* 正文：暖黑（非纯黑） */
+  --color-ink-soft: #57503f; /* 次级说明文字 */
+  --color-primary: #1d5346; /* 主色：药匣墨绿（moss 家族的可达性加深） */
+  --color-primary-deep: #153e35; /* 主色加深：悬停/按下 */
+  --color-primary-tint: #dfe7d8; /* 暖苔绿浅底：次要横幅 */
+  --color-accent: #c03d25; /* 唯一强调色：朱红=赤陶加深（处方药/错误/禁忌） */
+  --color-accent-deep: #a02f1b;
+  --color-line: #d3c49f; /* 纸面规则细线 */
+  --color-line-strong: #bfaa7e; /* 双线/徽章描边 */
+
+  /* 字体：展示字用楷体→中宋衬线栈（楷体人写有温度，且每台 Windows 都自带），
+     正文用系统黑体栈。刻意零网络字体依赖——现场演示网络不可控，
+     绝不能因字体加载失败翻车 */
+  --font-display: "STKaiti", "KaiTi", "楷体", "STZhongsong", "华文中宋", "Songti SC", "STSong", "SimSun", serif;
+  --font-body:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+
+  /* 圆角 / 阴影 / 动效 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-1: 0 1px 2px rgba(38, 34, 26, 0.08), 0 2px 8px rgba(38, 34, 26, 0.06);
+  --shadow-2: 0 2px 6px rgba(38, 34, 26, 0.12), 0 12px 28px rgba(38, 34, 26, 0.14);
+  /* 动效曲线取自 motion-standards.md §3.2 原值，原样复制不近似 */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-fast: 160ms; /* 按压反馈 100–160ms（§4） */
+  --dur-base: 320ms;
+  --dur-scene: 400ms; /* 结果卡片首次呈现：delight 档，落在有机风 300–500ms 窗口内 */
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- 氛围层：顶部暖光 + 纸面细颗粒（固定、不吃点击） ---- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(130% 55% at 50% -12%, rgba(255, 252, 240, 0.95), transparent 62%);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================ 组件层 ============================ */
+@layer components {
+  /* ---- 播报语言开关（首页顶部的双选钮） ---- */
+  .lang-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .lang-label {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-soft);
+  }
+  .lang-pill {
+    min-width: 84px;
+    min-height: 48px;
+    padding: 8px 18px;
+    border: 2px solid var(--color-primary);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font-size: 23px;
+    font-weight: 700;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+  .lang-pill.on {
+    background-color: var(--color-primary);
+    color: #fdf9ee;
+  }
+  .lang-pill:active {
+    transform: scale(0.96);
+  }
+  .lang-pill:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  /* ---- 按钮体系：全宽、大触点（≥52px）、按压有回弹 ----
+     过渡只带 transform（GPU 白名单）；颜色/阴影只做状态切换不做动画 */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-1);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+  /* hover 反馈仅精细指针设备（触屏 :hover 会粘连误触发） */
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover:not(:disabled) {
+      background-color: var(--color-primary-deep);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--color-primary-tint);
+    }
+  }
+
+  .btn-primary {
+    min-height: 76px;
+    background-color: var(--color-primary);
+    color: #fdf9ee;
+    font-size: 25px;
+    box-shadow: var(--shadow-1), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .btn-secondary {
+    min-height: 60px;
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font-size: 23px;
+    box-shadow: inset 0 0 0 2px var(--color-primary), var(--shadow-1);
+  }
+
+  .btn-danger {
+    min-height: 64px;
+    background-color: var(--color-accent);
+    color: #fff8f0;
+    font-size: 23px;
+  }
+  .btn-danger:focus-visible {
+    outline-color: var(--color-accent);
+  }
+
+  /* ---- 处方笺卡片 ---- */
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+  }
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding-bottom: 12px;
+    border-bottom: 3px double var(--color-line-strong);
+  }
+  .sheet-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+    color: var(--color-primary);
+  }
+  .sheet-note {
+    font-size: 18px;
+    line-height: 1.4;
+    color: var(--color-ink-soft);
+  }
+
+  /* ---- 药名词条：衬线大字 + 墨绿短粗线 ---- */
+  .med-name {
+    font-family: var(--font-display);
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+  }
+  .med-name-rule {
+    width: 44px;
+    height: 4px;
+    margin-top: 10px;
+    border-radius: 2px;
+    background-color: var(--color-primary);
+  }
+
+  /* ---- 字段（规则细线分隔，标签字距拉开） ---- */
+  .field-label {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+  }
+  .field-label-danger {
+    color: var(--color-accent);
+  }
+  .field-value {
+    margin-top: 6px;
+    font-size: 24px;
+    line-height: 1.8;
+    color: var(--color-ink);
+  }
+  .field-value-empty {
+    color: var(--color-ink-soft);
+  }
+
+  /* ---- 处方药印章：朱红双线框，像盖在处方上的警示章 ---- */
+  .rx-stamp {
+    padding: 14px 12px;
+    border: 3px double var(--color-accent);
+    border-radius: var(--radius-sm);
+    background-color: #eeddc9;
+    color: var(--color-accent);
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .note-banner {
+    padding: 12px;
+    border: 1.5px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-primary-tint);
+    color: var(--color-primary-deep);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  /* ---- 注射提醒：安全信息，用实心色块强调，老人一眼能看到 ---- */
+  .inject-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    color: #fdf9ee;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+  .inject-note svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: #fdf9ee;
+  }
+
+  /* ---- 贴心叮嘱：像家人写在纸角的一句关照 ---- */
+  .care-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-left: 5px solid var(--color-primary);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background-color: var(--color-primary-tint);
+    color: var(--color-primary-deep);
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+  .care-note svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: var(--color-primary);
+  }
+
+  /* ---- 继续询问：方言语音问答面板 ---- */
+  .ask-panel {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+  }
+  .ask-tip {
+    margin-top: 10px;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+  }
+  .ask-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .ask-chip {
+    min-height: 48px;
+    padding: 8px 16px;
+    border: 1.5px solid var(--color-primary);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font-size: 20px;
+    font-weight: 700;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .ask-chip:disabled {
+    opacity: 0.5;
+  }
+  .ask-chip:active {
+    transform: scale(0.96);
+  }
+  .ask-mic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 68px;
+    margin-top: 14px;
+    font-size: 23px;
+  }
+  .ask-mic-icon {
+    display: inline-flex;
+    align-items: center;
+  }
+  .ask-mic.recording {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff8f0;
+    animation: mic-pulse 1.2s var(--ease-in-out) infinite;
+  }
+  .ask-echo {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary-tint);
+    color: var(--color-primary-deep);
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .ask-bubbles {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .ask-turn {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ask-q {
+    align-self: flex-end;
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background-color: var(--color-primary);
+    color: #fdf9ee;
+    font-size: 22px;
+    line-height: 1.6;
+  }
+  .ask-a {
+    align-self: flex-start;
+    max-width: 92%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background-color: var(--color-primary-tint);
+    color: var(--color-primary-deep);
+    font-size: 22px;
+    line-height: 1.6;
+  }
+  .ask-a-foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  .ask-speak {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 16px;
+    border: 1.5px solid var(--color-primary);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .ask-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .ask-input {
+    flex: 1;
+    min-height: 56px;
+    padding: 0 14px;
+    border: 2px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-size: 22px;
+  }
+  .ask-input:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+    border-color: var(--color-primary);
+  }
+  .ask-send {
+    min-width: 84px;
+    margin-top: 0;
+  }
+  .ask-disclaimer {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 18px;
+    color: var(--color-ink-soft);
+  }
+
+  /* ---- 图片纸框（预览图 / 示例图） ---- */
+  .paper-frame {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 10px;
+    box-shadow: var(--shadow-1);
+  }
+  .paper-frame > img {
+    display: block;
+    width: 100%;
+    max-height: 15rem;
+    object-fit: contain;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+  }
+
+  .sample-card {
+    flex-shrink: 0;
+    width: 8.75rem;
+    padding: 8px 8px 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-1);
+    text-align: center;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .sample-card:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+  }
+  .sample-card:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+  .sample-card:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+  .sample-card:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .sample-card img {
+    display: block;
+    width: 100%;
+    height: 5.5rem;
+    object-fit: cover;
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+  }
+  .sample-card span {
+    display: block;
+    padding: 8px 2px 9px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  /* ---- 错误块 ---- */
+  .error-box {
+    padding: 20px;
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-lg);
+    background-color: #eeddc9;
+  }
+  .error-text {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--color-accent);
+  }
+
+  /* ---- 加载转圈（放慢到 1.1s，老人更舒服） ---- */
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid var(--color-primary-tint);
+    border-top-color: var(--color-primary);
+    animation: spin-rot 1.1s linear infinite;
+  }
+  .loading-text {
+    margin-top: 16px;
+    font-family: var(--font-display);
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+  }
+
+  /* ---- 使用前请知晓：完整免责声明卡片（首页识别前展示） ---- */
+  .notice-card {
+    padding: 14px 16px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+  }
+  .notice-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  .notice-list {
+    margin-top: 8px;
+    padding-left: 1.2em;
+    list-style: disc;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--color-ink-soft);
+  }
+  .notice-list li + li {
+    margin-top: 6px;
+  }
+
+  /* ---- 底部免责 ---- */
+  .disclaimer {
+    border-top: 1px solid var(--color-line);
+    background-color: rgba(238, 228, 201, 0.92);
+  }
+  .disclaimer-text {
+    color: var(--color-ink-soft);
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: center;
+  }
+}
+
+@keyframes spin-rot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- 录音中脉冲（呼吸感，纯 transform） ---- */
+@keyframes mic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+/* ---- 结果卡片入场：挂载即播放一次；无 JS/降级时保持可见 ---- */
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card-enter {
+    animation: card-rise var(--dur-scene) var(--ease-out) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .card-enter,
+  .ask-mic.recording {
+    animation: none !important;
+  }
+}
