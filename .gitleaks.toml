@@ -1,0 +1,23 @@
+# gitleaks 项目配置：提交前 / CI 里自动扫描是否误带密钥。
+# 文档与更多规则写法见 https://github.com/gitleaks/gitleaks
+
+title = "yaoshitong gitleaks config"
+
+# 先启用官方内置规则（覆盖 OpenAI sk-、AWS AKIA、Google AIza、Generic API Key 等常见格式）
+[extend]
+useDefault = true
+
+# 白名单：本项目模板文件里的"占位符"不是密钥，排除掉避免误报。
+# 注意：只放占位符字样，不要把真实 Key 的格式放进来。
+[allowlist]
+description = "模板占位符，不是真实密钥"
+regexes = [
+  '''在这里粘贴你的''',
+  '''你的真实智谱APIKey''',
+  '''你的真实MiniMaxAPIKey''',
+  '''你的真实GroupID''',
+  '''你的易源数据AppKey''',
+  '''在这里粘贴你的易源数据AppKey''',
+  '''你的真实''',
+  '''your_key_here''',
+]

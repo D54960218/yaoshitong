@@ -14,13 +14,15 @@
 | 本地开发（自己电脑跑） | 项目根目录的 **`.env.local`** 文件（已配置为永不提交）。双击 `填写密钥.bat` 会自动建好并打开它 |
 | 部署到 Vercel 等线上平台 | 平台后台的 **Environment Variables（环境变量）** 设置页，**不要**把 `.env.local` 一起传上去 |
 
-本项目需要两个密钥（都申请自国内服务商，有免费额度）：
+本项目需要的密钥（均有免费额度）：
 
 | 变量名 | 用途 | 申请地址 |
 | --- | --- | --- |
 | `ZHIPU_API_KEY` | 识别药盒图片 + 语音转文字 + 问答 | https://open.bigmodel.cn → 控制台 → API Keys |
 | `MINIMAX_API_KEY` | 语音播报（TTS） | https://platform.minimaxi.com → 账户管理 |
 | `MINIMAX_GROUP_ID` | 部分 MiniMax 账号必填 | 同上页面，和 API Key 放在一起 |
+| `YIYUAN_APP_KEY` | 国内药品说明书数据库（易源数据），用于三层验证链路 | https://www.showapi.com → 搜索「药品说明书」 |
+| `OPENFDA_API_KEY` | 外部药品数据库 openFDA 验证（可选，不填也能用） | https://open.fda.gov/apis/authentication/ |
 
 申请后照抄到对应位置即可；`.env.example` / `.env.local.example` 两个模板文件里
 只有占位符，照抄模板格式填写，**不要把 Key 写进任何别的文件**。
@@ -28,7 +30,8 @@
 ## 二、项目自带的防护（已实现，无需配置）
 
 1. **代理模式**：前端代码里没有任何密钥。浏览器只调用本项目自己的 `/api/*` 接口，
-   由服务端用环境变量里的 Key 去调智谱 / MiniMax（见 `app/api/` 下 4 个文件）。
+   由服务端用环境变量里的 Key 去调智谱 / MiniMax / 易源数据 / openFDA 等外部服务（见 `app/api/`、`lib/drug-verification/adapters/` 与 `lib/verification/`）。
+   即使抓包也只能看到本项目的接口，看不到真实第三方 Key。
 2. **`.gitignore` 拦截**：`.env`、`.env.*`、证书文件（`*.pem`/`*.key`）一律不允许提交，
    只有两个 `.example` 模板可以上传。
 3. **来源检查**：所有 `/api/*` 接口会核验请求来源，别的网站不能偷偷调你的接口

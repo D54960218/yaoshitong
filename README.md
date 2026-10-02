@@ -12,6 +12,7 @@
 - 🔊 **语音播报**：一键播报 / 再读一遍 / 随时停止（MiniMax TTS，中文自然音、语速放缓，适合老人）
 - 💬 **继续询问**：识别后可语音提问（支持主要方言与口音普通话）、点选快捷问题或打字，回答自动播报
 - 💊 **剂量说人话**：「一次 0.25g」按包装规格换算成「一次 1 粒」——用确定性规则计算，不让模型口算
+- ✅ **国内数据库核验**：接入易源数据药品说明书库，按「批准文号 → 生产企业/规格 → 代码打分」三层链路验证识别结果
 - ⚠️ **安全提醒**：处方药红色大字 + 语音双重提醒；页面底部常驻免责声明
 
 ## 🚀 快速开始
@@ -36,6 +37,14 @@ npm run dev
 浏览器打开 `http://localhost:3000` 即可使用。
 
 > **Windows 用户更省事的方式**：双击项目里的 `预览.bat`（自动构建并打开浏览器）和 `填写密钥.bat`（自动打开密钥配置文件）。手机连同一 Wi-Fi 后用 `预览.bat` 窗口里打印的局域网地址访问，即可真机拍照测试（配合 `放行手机访问.bat` 放行防火墙）。
+>
+> 如果中文文件名导致双击闪退，请改用同名英文版本：`preview.bat`、`fill-keys.bat`、`allow-phone.bat`。
+>
+> 如果 `.bat` 仍然一闪而过，可能是系统对批处理文件的执行被拦截或关联损坏，请尝试：
+>
+> - 双击 `preview.cmd`（CMD 版本）
+> - 双击 `preview.vbs`（无黑窗脚本，最稳定）
+> - 或在文件夹空白处按住 `Shift` 点右键 → **在此处打开 PowerShell 窗口** / **终端**，然后运行 `npm run build` 和 `npm run start`
 
 ## 🔑 环境变量
 
@@ -44,6 +53,7 @@ npm run dev
 | `ZHIPU_API_KEY` | 药盒图片识别 + 语音转文字 + 问答 | [智谱开放平台](https://open.bigmodel.cn) → 控制台 → API Keys（`glm-4v-flash` / `glm-4-flash` 均为免费模型） |
 | `MINIMAX_API_KEY` | 语音播报 TTS | [MiniMax 开放平台](https://platform.minimaxi.com) → 账户管理 |
 | `MINIMAX_GROUP_ID` | 部分账号调语音接口必填 | 同 MiniMax 账户管理页 |
+| `YIYUAN_APP_KEY` | 国内药品说明书数据库核验（易源数据） | [万维易源](https://www.showapi.com) → 搜索「药品说明书」 |
 | `ALLOWED_ORIGINS` | 可选：额外信任的前端域名（逗号分隔） | 默认同源请求自动放行，一般用不到 |
 | `TTS_VOICE_ID` / `TTS_LANGUAGE_BOOST` / `TTS_SPEED` | 可选：换音色 / 加粤语 / 调速 | 见 `.env.example` 内注释 |
 
@@ -55,12 +65,12 @@ npm run dev
 
 1. 把项目推送到自己的 GitHub 仓库
 2. 登录 Vercel → **Import** 该仓库
-3. 在项目的 **Settings → Environment Variables** 里添加 `ZHIPU_API_KEY`、`MINIMAX_API_KEY`（按需加 `MINIMAX_GROUP_ID`）
+3. 在项目的 **Settings → Environment Variables** 里添加 `ZHIPU_API_KEY`、`MINIMAX_API_KEY`、`YIYUAN_APP_KEY`（按需加 `MINIMAX_GROUP_ID`）
 4. 点 **Deploy**，一两分钟后获得公开网址，手机扫码即用
 
 ## 🛡️ 安全设计
 
-- **密钥只在服务端**：前端无任何 Key，浏览器只调本项目自己的 `/api/*` 接口，由服务端用环境变量转发到智谱 / MiniMax
+- **密钥只在服务端**：前端无任何 Key，浏览器只调本项目自己的 `/api/*` 接口，由服务端用环境变量转发到智谱 / MiniMax / 易源数据
 - **接口防滥用**：所有 `/api/*` 带来源校验 + 按 IP 频率限制（`lib/server-guard.ts`）
 - **密钥永不入库**：`.gitignore` 拦截 `.env*` 与证书文件；仓库里的 `.env.example` 只有占位符
 - **防误传**：内置 gitleaks 配置与 pre-commit 钩子（`git config core.hooksPath .githooks`），建议同时开启 GitHub 的 Secret scanning 与 Push protection
@@ -80,6 +90,8 @@ components/             上传按钮、示例图选择器、结果卡片、语�
 data/common-medicines.json  本地常用药库（24 种，可增删）
 public/samples/         3 张示例药盒图（Wikimedia Commons 实景照片，见夹内 README.txt）
 lib/
+  verification/         易源数据三层验证链路：规则、API 适配器、主链路
+  drug-verification/    海外/公开数据库交叉验证（openFDA、RxNorm 等）
   server-guard.ts       API 护栏：来源校验 + 按 IP 限流
   text-guard.ts         输出守门：跑题过滤、注射提醒、剂量复核
   dose-translate.ts     剂量换算：克数 → 几粒几片（确定性规则）

@@ -40,7 +40,7 @@
 - [ ] **10. 首次推送用私有仓库过渡（可选但推荐）**：先建 **Private** 仓库推上去，
       确认 GitHub 没有给任何安全告警，再转 Public。
 - [ ] **11. Vercel 环境变量已配**（如部署线上）：Settings → Environment Variables 里
-      加好 `ZHIPU_API_KEY`、`MINIMAX_API_KEY`（按需 `MINIMAX_GROUP_ID`），
+      加好 `ZHIPU_API_KEY`、`MINIMAX_API_KEY`、`YIYUAN_APP_KEY`（按需 `MINIMAX_GROUP_ID`），
       线上点一遍识别和播报。
 
 ## 五、仅当"以前误传过带密钥的版本"才需要做

@@ -1,0 +1,34 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== 密钥与私密配置 =====
+# 真实 Key 只许待在本地 .env.local（或部署平台的环境变量设置页），
+# 这个文件已被忽略，永远不会被上传。两个 .example 模板不会被忽略。
+.env
+.env.*
+!.env.example
+!.env.local.example
+*.pem
+*.key
+config/secrets.json
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
