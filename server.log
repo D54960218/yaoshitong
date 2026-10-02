@@ -1,0 +1,70 @@
+
+> yaoshitong@1.0.0 start
+> next start
+
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+ ✓ Ready in 331ms
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] 未预期的错误: TypeError: fetch failed
+    at node:internal/deps/undici/undici:13178:13
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:454:9)
+    at process.callbackTrampoline (node:internal/async_hooks:130:17)
+    at async w (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\.next\server\app\api\tts\route.js:1:3057)
+    at async C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:36957
+    at async eC.execute (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27552)
+    at async eC.handle (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38291)
+    at async doRender (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\server\base-server.js:1352:42) {
+  [cause]: ConnectTimeoutError: Connect Timeout Error
+      at onConnectTimeout (node:internal/deps/undici/undici:2331:28)
+      at node:internal/deps/undici/undici:2283:50
+      at Immediate._onImmediate (node:internal/deps/undici/undici:2313:37)
+      at process.processImmediate (node:internal/timers:483:21)
+      at process.callbackTrampoline (node:internal/async_hooks:130:17) {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[recognize] 调用智谱失败: TypeError: fetch failed
+    at node:internal/deps/undici/undici:13178:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async X (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\.next\server\app\api\recognize\route.js:1:24749)
+    at async Q (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\.next\server\app\api\recognize\route.js:1:26169)
+    at async C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:36957
+    at async eC.execute (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27552)
+    at async eC.handle (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38291)
+    at async doRender (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\server\base-server.js:1352:42)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\server\base-server.js:1574:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\D5496\WorkBuddy\2026-10-01-17-09-48\outputs\yaoshitong-github-ready\yaoshitong\node_modules\next\dist\server\base-server.js:1482:28) {
+  [cause]: ConnectTimeoutError: Connect Timeout Error (attempted addresses: 47.102.128.206:443)
+      at onConnectTimeout (node:internal/deps/undici/undici:2331:28)
+      at node:internal/deps/undici/undici:2283:50
+      at Immediate._onImmediate (node:internal/deps/undici/undici:2313:37)
+      at process.processImmediate (node:internal/timers:483:21)
+      at process.callbackTrampoline (node:internal/async_hooks:130:17) {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
+[tts] language_boost="" 不在支持列表里，已回退为 Chinese
